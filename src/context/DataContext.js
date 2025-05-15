@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import {
   getExpenses,
@@ -25,9 +25,18 @@ export const DataProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = useCallback(async () => {
-    if (!user) return;
-    
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    } else {
+      setExpenses([]);
+      setIncomes([]);
+      setCategories([]);
+      setLoading(false);
+    }
+  }, [user]);
+
+  const fetchData = async () => {
     try {
       setLoading(true);
       const [expensesData, incomesData, categoriesData] = await Promise.all([
@@ -48,18 +57,7 @@ export const DataProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    } else {
-      setExpenses([]);
-      setIncomes([]);
-      setCategories([]);
-      setLoading(false);
-    }
-  }, [user, fetchData]);
+  };
 
   const handleAddExpense = async (expenseData) => {
     try {

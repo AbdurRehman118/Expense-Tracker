@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import NewExpense from './components/NewExpense/NewExpense';
 import Income from './components/Income/Income';
@@ -11,10 +11,7 @@ import ProfileSettings from './components/Auth/ProfileSettings';
 import Navbar from './components/UI/Navbar';
 import Footer from './components/UI/Footer';
 import { ThemeProvider } from './context/ThemeContext';
-import { AuthProvider } from './context/AuthContext';
-import { DataProvider } from './context/DataContext';
-import { useAuth } from './context/AuthContext';
-import { useData } from './context/DataContext';
+import { DEFAULT_CATEGORIES } from './constants/categories';
 import './styles/theme.css';
 import './App.css';
 
@@ -40,22 +37,72 @@ const Privacy = () => (
   </div>
 );
 
-const Dashboard = () => {
-  const {
-    expenses,
-    incomes,
-    categories,
-    loading,
-    addExpense,
-    addIncome,
-    updateExpense,
-    deleteExpense,
-    addCategory,
-    deleteCategory,
-  } = useData();
+const DUMMY_EXPENSES = [
+  {
+    id: 'e1',
+    title: 'Car Insurance',
+    amount: 29467,
+    date: new Date(2024, 2, 28),
+    category: 'transportation'
+  },
+  {
+    id: 'e2',
+    title: 'New TV',
+    amount: 79949,
+    date: new Date(2024, 1, 12),
+    category: 'home'
+  },
+  {
+    id: 'e3',
+    title: 'Groceries',
+    amount: 12999,
+    date: new Date(2024, 2, 15),
+    category: 'food'
+  },
+  {
+    id: 'e4',
+    title: 'New Desk (Wooden)',
+    amount: 45000,
+    date: new Date(2023, 5, 12),
+    category: 'work'
+  },
+];
 
-  const [selectedCategory, setSelectedCategory] = React.useState('all');
-  const [activeTab, setActiveTab] = React.useState('expense');
+function App() {
+  const [expenses, setExpenses] = useState([]);
+  const [incomes, setIncomes] = useState([]);
+  const [user, setUser] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [categories, setCategories] = useState([]);
+  const [activeTab, setActiveTab] = useState('expense'); // 'expense' or 'income'
+
+  const addExpenseHandler = (expense) => {
+    const expenseWithIntAmount = {
+      ...expense,
+      amount: Math.round(expense.amount * 100)
+    };
+    setExpenses((prevExpenses) => [expenseWithIntAmount, ...prevExpenses]);
+  };
+
+  const addIncomeHandler = (income) => {
+    const incomeWithIntAmount = {
+      ...income,
+      amount: Math.round(income.amount * 100)
+    };
+    setIncomes((prevIncomes) => [incomeWithIntAmount, ...prevIncomes]);
+  };
+
+  const handleEditExpense = (id, updatedExpense) => {
+    setExpenses(prevExpenses =>
+      prevExpenses.map(expense =>
+        expense.id === id ? { ...updatedExpense, amount: Math.round(updatedExpense.amount * 100) } : expense
+      )
+    );
+  };
+
+  const handleDeleteExpense = (id) => {
+    setExpenses(prevExpenses => prevExpenses.filter(expense => expense.id !== id));
+  };
 
   const calculateTotalExpense = () => {
     return expenses.reduce((total, expense) => total + expense.amount, 0);
@@ -70,7 +117,7 @@ const Dashboard = () => {
     const csvContent = [
       ['Date', 'Title', 'Category', 'Amount', 'Description'].join(','),
       ...expenses.map(expense => [
-        expense.date.split('T')[0],
+        expense.date.toISOString().split('T')[0],
         expense.title,
         expense.category,
         (expense.amount / 100).toFixed(2),
@@ -85,142 +132,171 @@ const Dashboard = () => {
     link.click();
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const handleLogin = (credentials) => {
+    if (credentials.email === 'john.doe@example.com') {
+      setUser({
+        name: 'John Doe',
+        email: credentials.email,
+        profilePhoto: null
+      });
+      setExpenses(DUMMY_EXPENSES);
+      setCategories(DEFAULT_CATEGORIES);
+    } else {
+      setUser({
+        name: credentials.email.split('@')[0],
+        email: credentials.email,
+        profilePhoto: null
+      });
+      setExpenses([]);
+      setCategories(DEFAULT_CATEGORIES);
+    }
+  };
 
-  return (
-    <div className="dashboard-container fade-in">
-      <CategoryPanel
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
-        expenses={expenses}
-        onAddCategory={addCategory}
-        onRemoveCategory={deleteCategory}
-      />
-      <div className="dashboard-content">
-        <Summary 
-          totalExpense={calculateTotalExpense()}
-          totalIncome={calculateTotalIncome()}
-          onDownload={handleDownloadCSV}
-        />
-        <div className="content-section">
-          <div className="form-section">
-            <div className="form-tabs">
-              <button 
-                className={`form-tab ${activeTab === 'expense' ? 'active' : ''}`}
-                onClick={() => setActiveTab('expense')}
-                data-tab="expense"
-              >
-                Add Expense
-              </button>
-              <button 
-                className={`form-tab ${activeTab === 'income' ? 'active' : ''}`}
-                onClick={() => setActiveTab('income')}
-                data-tab="income"
-              >
-                Add Income
-              </button>
-            </div>
-            {activeTab === 'expense' ? (
-              <NewExpense 
-                onAddExpense={addExpense} 
-                categories={categories}
-              />
-            ) : (
-              <Income onAddIncome={addIncome} />
-            )}
-          </div>
-          <div className="filters-section">
-            <Expenses 
-              items={expenses.filter(expense => 
-                selectedCategory === 'all' ? true : expense.category === selectedCategory
-              )}
-              onEditExpense={updateExpense}
-              onDeleteExpense={deleteExpense}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+  const handleSignUp = (userData) => {
+    setUser({
+      name: userData.name,
+      email: userData.email,
+      profilePhoto: null
+    });
+    setExpenses([]);
+    setCategories(DEFAULT_CATEGORIES);
+  };
 
-function App() {
+  const handleUpdateProfile = (updatedProfile) => {
+    setUser(prevUser => ({
+      ...prevUser,
+      name: updatedProfile.name,
+      profilePhoto: updatedProfile.profilePhoto
+    }));
+  };
+
+  const handleAddCategory = (newCategory) => {
+    setCategories(prev => [...prev, newCategory]);
+  };
+
+  const handleRemoveCategory = (categoryId) => {
+    setCategories(prev => prev.filter(cat => cat.id !== categoryId));
+    // If the removed category was selected, reset to 'all'
+    if (selectedCategory === categoryId) {
+      setSelectedCategory('all');
+    }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setExpenses([]);
+    setSelectedCategory('all');
+    setCategories([]);
+  };
+
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <DataProvider>
-          <Router>
-            <div className="app-container">
-              <Navbar />
-              <main className="main-content">
-                <Routes>
-                  <Route
-                    path="/login"
-                    element={
-                      <PublicRoute>
-                        <Login />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/signup"
-                    element={
-                      <PublicRoute>
-                        <SignUp />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/profile"
-                    element={
-                      <PrivateRoute>
-                        <ProfileSettings />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/"
-                    element={
-                      <PrivateRoute>
-                        <Dashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                </Routes>
-              </main>
-              <Footer />
-            </div>
-          </Router>
-        </DataProvider>
-      </AuthProvider>
+      <Router>
+        <div className="app-container">
+          <Navbar user={user} onLogout={handleLogout} />
+          <main className="main-content">
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  !user ? (
+                    <Login onLogin={handleLogin} />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  !user ? (
+                    <SignUp onSignUp={handleSignUp} />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  user ? (
+                    <ProfileSettings user={user} onUpdateProfile={handleUpdateProfile} />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  user ? (
+                    <div className="dashboard-container fade-in">
+                      <CategoryPanel
+                        categories={categories}
+                        selectedCategory={selectedCategory}
+                        onCategorySelect={setSelectedCategory}
+                        expenses={expenses}
+                        onAddCategory={handleAddCategory}
+                        onRemoveCategory={handleRemoveCategory}
+                      />
+                      <div className="dashboard-content">
+                        <Summary 
+                          totalExpense={calculateTotalExpense()}
+                          totalIncome={calculateTotalIncome()}
+                          onDownload={handleDownloadCSV}
+                        />
+                        <div className="content-section">
+                          <div className="form-section">
+                            <div className="form-tabs">
+                              <button 
+                                className={`form-tab ${activeTab === 'expense' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('expense')}
+                                data-tab="expense"
+                              >
+                                Add Expense
+                              </button>
+                              <button 
+                                className={`form-tab ${activeTab === 'income' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('income')}
+                                data-tab="income"
+                              >
+                                Add Income
+                              </button>
+                            </div>
+                            {activeTab === 'expense' ? (
+                              <NewExpense 
+                                onAddExpense={addExpenseHandler} 
+                                categories={categories}
+                              />
+                            ) : (
+                              <Income onAddIncome={addIncomeHandler} />
+                            )}
+                          </div>
+                          <div className="filters-section">
+                            <Expenses 
+                              items={expenses}
+                              onEditExpense={handleEditExpense}
+                              onDeleteExpense={handleDeleteExpense}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
     </ThemeProvider>
   );
 }
-
-const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  
-  return user ? children : <Navigate to="/login" />;
-};
-
-const PublicRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  
-  return !user ? children : <Navigate to="/" />;
-};
 
 export default App;
