@@ -13,6 +13,7 @@ A modern expense tracking application built with React and Supabase, featuring r
 - 📊 Data Visualization
 - 📤 CSV Export
 - ⚡ Real-time Updates
+- 🔄 Session Persistence
 
 ## Tech Stack
 
@@ -46,6 +47,34 @@ REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
 npm start
 ```
 
+## Deployment on Netlify
+
+1. Push your code to a GitHub repository
+
+2. Connect to Netlify:
+   - Log in to Netlify
+   - Click "New site from Git"
+   - Choose your repository
+   - Set build command to: `npm run build`
+   - Set publish directory to: `build`
+
+3. Configure environment variables in Netlify:
+   - Go to Site settings > Build & deploy > Environment
+   - Add the following variables:
+     ```
+     REACT_APP_SUPABASE_URL=your_supabase_project_url
+     REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+     ```
+
+4. Enable Netlify Identity (optional, if using Netlify Identity):
+   - Go to Site settings > Identity
+   - Click "Enable Identity"
+   - Configure registration preferences
+
+5. Deploy:
+   - Netlify will automatically deploy your site
+   - Any push to the main branch will trigger a new deployment
+
 ## Environment Setup
 
 1. Create a Supabase account and project at [https://supabase.com](https://supabase.com)
@@ -54,6 +83,15 @@ npm start
    - expenses
    - incomes
    - categories
+
+## Session Management
+
+The application implements robust session management:
+- Persistent sessions across page reloads
+- Automatic token refresh
+- Secure session storage
+- Profile synchronization
+- Real-time authentication state updates
 
 ## Contributing
 
