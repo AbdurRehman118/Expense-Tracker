@@ -229,7 +229,7 @@ export const deleteCategory = async (categoryId) => {
 // Add new utility function for checking database connection
 export const checkDatabaseConnection = async () => {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .select('count', { count: 'exact' });
     

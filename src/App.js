@@ -41,7 +41,6 @@ const Privacy = () => (
 );
 
 const Dashboard = () => {
-  const { user } = useAuth();
   const {
     expenses,
     incomes,
