@@ -1,0 +1,121 @@
+.income-form {
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border-radius: 15px;
+}
+
+.income-form label {
+  display: block;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.income-form input[type="text"],
+.income-form input[type="number"],
+.income-form input[type="date"],
+.income-form textarea,
+.income-form select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.income-form input::placeholder,
+.income-form textarea::placeholder {
+  color: rgba(156, 163, 175, 0.6);
+}
+
+.income-form input:focus,
+.income-form textarea:focus,
+.income-form select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.income-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.income-form .checkbox-group {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.income-form .checkbox-group input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.income-form .checkbox-group label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.income-form .button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.income-form button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.875rem;
+  min-width: 120px;
+}
+
+.income-form button[type="submit"] {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.income-form button[type="button"] {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.income-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-button);
+}
+
+.income-form button[type="button"]:hover {
+  background: var(--bg-primary);
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .income-form {
+    padding: 1.5rem;
+  }
+
+  .income-form .button-group {
+    flex-direction: column;
+  }
+
+  .income-form button {
+    width: 100%;
+  }
+} 

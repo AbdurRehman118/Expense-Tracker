@@ -1,0 +1,43 @@
+.expenses-list {
+  list-style: none;
+  padding: 0;
+}
+
+.expenses-list__fallback {
+  color: var(--text-primary);
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--bg-secondary);
+  border-radius: 15px;
+  box-shadow: var(--shadow-card);
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.expenses-list__fallback::before {
+  content: '📊';
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+  animation: bounce 2s infinite;
+}
+
+.expenses-list__fallback::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+} 
